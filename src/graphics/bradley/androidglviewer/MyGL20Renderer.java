@@ -22,6 +22,8 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer {
 
 	private Sphere mSphere;
 
+	private Cube mCube;
+
 	@Override
 	public void onSurfaceCreated(GL10 unused, EGLConfig cfg) {
 		// TODO Auto-generated method stub
@@ -31,10 +33,11 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer {
 	    GLES20.glDepthFunc(GL10.GL_LEQUAL);
 	    
 	    mSphere = new Sphere(1.0f, 20, 40);
+	    mCube = new Cube();
 	}
 
 	@Override
-	public void onDrawFrame(GL10 gl) {
+	public void onDrawFrame(GL10 unused) {
 		
 		// Draw background.
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
@@ -60,6 +63,7 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer {
 		Matrix.transposeM(mNormalMat, 0, tt, 0);
 		
 		mSphere.draw(mMVPMatrix, mNormalMat, mTemp);
+		mCube.draw(mMVPMatrix, mNormalMat);
 	}
 
 	@Override
