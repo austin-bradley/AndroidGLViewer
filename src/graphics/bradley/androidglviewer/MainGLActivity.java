@@ -1,15 +1,19 @@
 package graphics.bradley.androidglviewer;
 
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 
 public class MainGLActivity extends Activity {
+	
+	private GLSurfaceView mGLView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main_gl);
+		mGLView = new MyGLSurfaceView(this);
+		setContentView(mGLView);
 	}
 
 	@Override
