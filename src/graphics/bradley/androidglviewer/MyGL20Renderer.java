@@ -3,6 +3,8 @@ package graphics.bradley.androidglviewer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import graphics.bradley.androidglviewer.Sphere;
+
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -18,11 +20,17 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer {
 	private final float[] mRotationMatrix = new float[16];
 	private final float[] mTemp = new float [16];
 
+	private Sphere mSphere;
+
 	@Override
 	public void onSurfaceCreated(GL10 unused, EGLConfig cfg) {
 		// TODO Auto-generated method stub
 		
-		GLES20.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);		
+		GLES20.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		GLES20.glEnable(GL10.GL_DEPTH_TEST);
+	    GLES20.glDepthFunc(GL10.GL_LEQUAL);
+	    
+	    mSphere = new Sphere(1.0f, 20, 40);
 	}
 
 	@Override
@@ -51,6 +59,7 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer {
 		Matrix.invertM(tt, 0, mTemp, 0);
 		Matrix.transposeM(mNormalMat, 0, tt, 0);
 		
+		mSphere.draw(mMVPMatrix, mNormalMat, mTemp);
 	}
 
 	@Override
