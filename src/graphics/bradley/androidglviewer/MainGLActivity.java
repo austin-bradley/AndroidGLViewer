@@ -22,5 +22,30 @@ public class MainGLActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main_gl, menu);
 		return true;
 	}
+	
+	@Override
+	protected void onResume() {
+	    super.onResume();
+	        /*
+	 * The activity must call the GL surface view's
+	 * onResume() on activity onResume().
+	 */
+        if (mGLView != null) {
+            mGLView.onResume();
+        }
+    }
+	 
+    @Override
+    protected void onPause() {
+        super.onPause();
+ 
+        /*
+		 * The activity must call the GL surface view's
+		 * onPause() on activity onPause().
+		 */
+		    if (mGLView != null) {
+		        mGLView.onPause();
+		    }
+		}
 
 }

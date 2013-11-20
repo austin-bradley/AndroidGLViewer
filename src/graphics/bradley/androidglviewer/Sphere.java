@@ -1,10 +1,9 @@
 package graphics.bradley.androidglviewer;
 
-
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import android.opengl.GLES20;
@@ -14,8 +13,7 @@ import android.util.Log;
 public class Sphere {
 
 	private final String vertexShaderCode =
-			"vec4 lightDir = vec4(1, 1, 0, 0); "
-			+ "uniform mat4 uMVPMatrix, uMVMatrix, uNormalMat;" +
+			"uniform mat4 uMVPMatrix, uMVMatrix, uNormalMat;" +
 			"attribute vec4 vPosition;" +
 			"attribute vec4 vColor;" +
 			"attribute vec3 vNormal;" + 
@@ -25,8 +23,9 @@ public class Sphere {
 			"	varyingColor = vColor;" +
 			"	vec4 t = uNormalMat*vec4(vNormal, 0.0);" +
 			"   varyingNormal.xyz = t.xyz; "+
-			"   t = uMVMatrix*vPosition; varyingPos.xyz = t.xyz; "+
-			"    gl_Position =    uMVPMatrix  * vPosition ;" +
+			"   t = uMVMatrix*vPosition;"+ 
+			"   varyingPos.xyz = t.xyz; "+
+			"   gl_Position =    uMVPMatrix  * vPosition ;" +
 			"}";
 	// fragment code to perform diffuse + specular shading; 
 	private final String fragmentShaderCode =
@@ -36,16 +35,16 @@ public class Sphere {
 			"uniform vec3 lightDir; " +
 			"void main() {" +
 			"	float Ns = 100.0;  "+ // for shiness; 
-			"   float kd = 0.4, ks = 0.7; " +
+			"   float kd = 0.9, ks = 0.9; " +
 			"   vec4 light = vec4(1.0, 1.0, 1.0, 1.0); " +
-			"   vec4 lightS = vec4(1.0, 0.0, 1.0, 1.0); " + // the specular highlight is redish
+			"   vec4 lightS = vec4(1.0, 1.0, 1.0, 1.0); " + // the specular highlight is redish
 			"   vec3 Nn = normalize(varyingNormal); " +
 			"   vec3 Ln = normalize(lightDir); " +
 			"   vec4 diffuse = kd* light * max(dot(Nn, Ln), 0.0); " +
 			"   vec3 Ref = reflect(Nn, Ln); " + // get the reflectance vector; 
 			"   float dotV = max(dot(Ref, normalize(varyingPos)), 0.0); " + // since we are in eye space, the eye position is at 0, 0, 0, so the view direction is simply (varyingPos- (0, 0, 0))
 			"   vec4 specular = lightS*ks*pow(dotV, Ns); " +
-			"	gl_FragColor = diffuse + specular; " +
+			"	gl_FragColor = varyingColor*diffuse + specular; " +
 			//"   gl_FragColor = varyingColor*diffuse + specular; " +
 			"}";
 	
@@ -80,11 +79,8 @@ public class Sphere {
 	private int vertexCount; 
 	private final int vertexStride = COORDS_PER_VERTEX * 4;	// bytes per vertex
 	
-	// Set color with red, green, blue and alpha (opacity) values
-	float color[] = { 0.36328125f, 0.23046875f, 0.77734375f, 0.5f };
-	
 	// set the light direction in the eye coordinate; 
-	float lightDir[] = {-1.0f, 1.0f, 8.0f}; 
+	float lightDir[] = {0.0f, 1.0f, 8.0f}; 
 	
 	public static int checkShaderError(int shader) {
 		
@@ -152,7 +148,13 @@ public class Sphere {
 		               vertices[triIndex*9 + 6 ] = (float)(x1 * zr1);    vertices[triIndex*9 + 7 ] = (float)(y1 * zr1); 	vertices[triIndex*9 + 8 ] = (float) z1;
 		               
 		               // in this case, the normal is the same as the vertex, plus the normalization; 
-		               for (int kk = -9; kk<9 ; kk++) normals[triIndex*9 + kk] = colors[triIndex*9 + kk] = vertices[triIndex*9+kk];
+		               for (int kk = -9; kk<9 ; kk++) {
+		            	   normals[triIndex*9 + kk] = vertices[triIndex*9+kk];
+		            	   if((triIndex*9 + kk)%3 == 2)
+		            		   colors[triIndex*9 + kk] = 1;
+		            	   else
+		            		   colors[triIndex*9 + kk] = 0;		            	   
+		               }		               
 		               triIndex ++; 
 		           }
 		           //glEnd();
@@ -192,13 +194,12 @@ public class Sphere {
 		colorBuffer.position(0);
 		
 		// normal buffer; 
-				ByteBuffer bb3 = ByteBuffer.allocateDirect(
-						normals.length * 4);
-				bb3.order(ByteOrder.nativeOrder());
+		ByteBuffer bb3 = ByteBuffer.allocateDirect(normals.length * 4);
+		bb3.order(ByteOrder.nativeOrder());
 				
-				normalBuffer = bb3.asFloatBuffer();
-				normalBuffer.put(normals);
-				normalBuffer.position(0);
+		normalBuffer = bb3.asFloatBuffer();
+		normalBuffer.put(normals);
+		normalBuffer.position(0);
 				
 		// initialize byte buffer for the draw list
 		ByteBuffer dlb = ByteBuffer.allocateDirect(
@@ -288,5 +289,4 @@ public class Sphere {
 		GLES20.glDisableVertexAttribArray(mNormalHandle);
 	}
 }
-
 
